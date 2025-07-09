@@ -56,6 +56,7 @@ export default function Home() {
       const res = await fetch(`/api/zerezes${store}?date=${date.getDate()}-${monthPadded}-${date.getFullYear()}`);
       const json = await res.json();
       setCupons(json.cupons);
+      
 
       const result = {};
       let total = 0;
