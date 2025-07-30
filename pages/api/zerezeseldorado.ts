@@ -48,7 +48,7 @@ export default async function handler(
         param: [
           {
             pagina: 1,
-            registros_por_pagina: 600,
+            registros_por_pagina: 800,
             apenas_importado_api: "N",
           },
         ],
