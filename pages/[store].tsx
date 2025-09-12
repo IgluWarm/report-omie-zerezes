@@ -32,7 +32,8 @@ const Trocas = {
   icarai:5390200220,
   barigui:2431543317,
   riosulII: 8448360139,
-  eldorado: 9626733780
+  eldorado: 9626733780,
+  boulevard: 6898013032,
 
 };
 
