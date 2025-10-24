@@ -20,8 +20,8 @@ export default async function handler(
       },
       body: JSON.stringify({
         call: "CuponsFiscais",
-        app_key: "6159386173941",
-        app_secret: "519d21c001324131a95744c02b0204ca",
+        app_key: "6683095650231",
+        app_secret: "c583b864cc3747159ca0d337e427680d ",
         param: [
           {
             nPagina: 1,
@@ -43,12 +43,12 @@ export default async function handler(
       },
       body: JSON.stringify({
         call: "ListarVendedores",
-        app_key: "6159386173941",
-        app_secret: "519d21c001324131a95744c02b0204ca",
+        app_key: "6683095650231",
+        app_secret: "c583b864cc3747159ca0d337e427680d ",
         param: [
           {
             pagina: 1,
-            registros_por_pagina: 1000,
+            registros_por_pagina: 800,
             apenas_importado_api: "N",
           },
         ],
@@ -65,12 +65,12 @@ export default async function handler(
       },
       body: JSON.stringify({
         call: "ListarContasCorrentes",
-        app_key: "6159386173941",
-        app_secret: "519d21c001324131a95744c02b0204ca",
+        app_key: "6683095650231",
+        app_secret: "c583b864cc3747159ca0d337e427680d ",
         param: [
           {
             pagina: 1,
-            registros_por_pagina: 250,
+            registros_por_pagina: 300,
             apenas_importado_api: "N",
           },
         ],
@@ -80,6 +80,7 @@ export default async function handler(
 
   const pedidosJson = await pedidos.json();
   const vendedoresJson = await vendedores.json();
+
   const contaCorrenteJson = await contaCorrente.json();
   for (let i = 0; i < pedidosJson.cupons.length; i++) {
     const vendedor = vendedoresJson.cadastro.find((vendedor: any) => {
@@ -123,7 +124,7 @@ export default async function handler(
     );
 
     pedidosJson.cupons[i].cabecalhoCupom.pagamentos = pagamentos;
-    pedidosJson.cupons[i].cabecalhoCupom.vendedor = vendedor?.nome;
+    pedidosJson.cupons[i].cabecalhoCupom.vendedor = vendedor.nome;
   }
 
   const result = {
