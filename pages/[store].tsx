@@ -35,6 +35,7 @@ const Trocas = {
   eldorado: 9626733780,
   boulevard: 6898013032,
   iguatemicampinas: 8799440709,
+  patiopaulista: 7238528638,
 
 };
 
