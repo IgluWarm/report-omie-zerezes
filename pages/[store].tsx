@@ -6,13 +6,13 @@ import { useRouter } from 'next/router'
 
 const Trocas = {
   asasul: 10913233033,
-  ataulfo:1735705697,
+  ataulfo: 1735705697,
   barra: 3129541712,
   batel: 7345013736,
   centro: 2035258714,
   gavea: 6265002735,
   ipanema: 3129534163,
-  leblon:4544338668,
+  leblon: 4544338668,
   niteroi: 6882480397,
   riosul: 462207962,
   tijuca: 5817204615,
@@ -22,15 +22,16 @@ const Trocas = {
   haddocklobo: 3028540350,
   savassi: 3440805561,
   barrashopping: 3446161344,
+  maceio: 3295800921,
   moinhos: 7389516845,
-  higienopolis:1701727429,
-  ibirapuera:7322782528,
-  cambui:8408706763,
-  salvador:8397215332,
+  higienopolis: 1701727429,
+  ibirapuera: 7322782528,
+  cambui: 8408706763,
+  salvador: 8397215332,
   fortaleza: 9733759457,
-  poa:11244007970,
-  icarai:5390200220,
-  barigui:2431543317,
+  poa: 11244007970,
+  icarai: 5390200220,
+  barigui: 2431543317,
   riosulII: 8448360139,
   eldorado: 9626733780,
   boulevard: 6898013032,
@@ -60,7 +61,7 @@ export default function Home() {
       const res = await fetch(`/api/zerezes${store}?date=${date.getDate()}-${monthPadded}-${date.getFullYear()}`);
       const json = await res.json();
       setCupons(json.cupons);
-      
+
 
       const result = {};
       let total = 0;
@@ -118,9 +119,9 @@ export default function Home() {
               result[cupom.cabecalhoCupom.vendedor]["sol"] = { quant: 0, valor: 0 };
             }
             result[cupom.cabecalhoCupom.vendedor]["sol"].quant += item.nQuant;
-            result[cupom.cabecalhoCupom.vendedor]["sol"].valor += item.vItem  + (flanela.nQuant > 0 ? flanela.vUnit : 0) + (estojo.nQuant > 0 ? estojo.vUnit : 0) + (ecobag.nQuant > 0 ? ecobag.vUnit : 0) + (lente.nQuant > 0 ? lente.vUnit : 0);
-            result[cupom.cabecalhoCupom.vendedor].total += item.vItem  + (flanela.nQuant > 0 ? flanela.vUnit : 0) + (estojo.nQuant > 0 ? estojo.vUnit : 0) + (ecobag.nQuant > 0 ? ecobag.vUnit : 0) + (lente.nQuant > 0 ? lente.vUnit : 0);
-            total += item.vItem  + (flanela.nQuant > 0 ? flanela.vUnit : 0) + (estojo.nQuant > 0 ? estojo.vUnit : 0) + (ecobag.nQuant > 0 ? ecobag.vUnit : 0) + (lente.nQuant > 0 ? lente.vUnit : 0);
+            result[cupom.cabecalhoCupom.vendedor]["sol"].valor += item.vItem + (flanela.nQuant > 0 ? flanela.vUnit : 0) + (estojo.nQuant > 0 ? estojo.vUnit : 0) + (ecobag.nQuant > 0 ? ecobag.vUnit : 0) + (lente.nQuant > 0 ? lente.vUnit : 0);
+            result[cupom.cabecalhoCupom.vendedor].total += item.vItem + (flanela.nQuant > 0 ? flanela.vUnit : 0) + (estojo.nQuant > 0 ? estojo.vUnit : 0) + (ecobag.nQuant > 0 ? ecobag.vUnit : 0) + (lente.nQuant > 0 ? lente.vUnit : 0);
+            total += item.vItem + (flanela.nQuant > 0 ? flanela.vUnit : 0) + (estojo.nQuant > 0 ? estojo.vUnit : 0) + (ecobag.nQuant > 0 ? ecobag.vUnit : 0) + (lente.nQuant > 0 ? lente.vUnit : 0);
 
             flanela.nQuant -= 1;
             estojo.nQuant -= 1;
@@ -157,7 +158,7 @@ export default function Home() {
             result[cupom.cabecalhoCupom.vendedor].total += item.vItem;
             total += item.vItem;
           } else if (item.xProd.toLowerCase().includes("bolsa") || item.xProd.toLowerCase().includes('bone') || item.xProd.toLowerCase().includes('canga')) {
-            console.dir({item}, { depth: null})
+            console.dir({ item }, { depth: null })
             if (result[cupom.cabecalhoCupom.vendedor]["others"] === undefined) {
               result[cupom.cabecalhoCupom.vendedor]["others"] = { quant: 0, valor: 0 };
             }
@@ -202,7 +203,7 @@ export default function Home() {
   }, [store, date]);
 
   const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-  
+
 
   return (
     <div className={styles.container}>
@@ -255,7 +256,7 @@ export default function Home() {
               <th>Conserto</th>
               <th>Outros</th>
               <th>Troca</th>
-              <th>Total de Vendas<br/>(Vendas - Trocas)</th>
+              <th>Total de Vendas<br />(Vendas - Trocas)</th>
             </tr>
             {Object.keys(result).map((vendedor, key) => (
               <tr key={key}>
