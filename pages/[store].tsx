@@ -37,7 +37,8 @@ const Trocas = {
   boulevard: 6898013032,
   iguatemicampinas: 8799440709,
   patiopaulista: 7238528638,
-
+  vilamariana: 4702915515,
+  florianopolis: 4704865322,
 };
 
 const Td = ({ children }) => <td style={{ border: "1px solid black", padding: "6px" }}>{children}</td>
