@@ -34,27 +34,32 @@ export default async function handler(
     }
   );
 
-  const vendedores = await fetch(
-    "https://app.omie.com.br/api/v1/geral/vendedores/",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        call: "ListarVendedores",
-        app_key: "2621989711341",
-        app_secret: "1bf1cc41c6ddcd8ec7bb8a8526063edf",
-        param: [
-          {
-            pagina: 1,
-            registros_por_pagina: 1000,
-            apenas_importado_api: "N",
-          },
-        ],
-      }),
+  let todosVendedores: any[] = [];
+  let paginaVendedores = 1;
+  let totalPaginasVendedores = 1;
+  do {
+    try {
+      const vendedoresRes = await fetch(
+        "https://app.omie.com.br/api/v1/geral/vendedores/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            call: "ListarVendedores",
+            app_key: "2621989711341",
+            app_secret: "1bf1cc41c6ddcd8ec7bb8a8526063edf",
+            param: [{ pagina: paginaVendedores, registros_por_pagina: 50, apenas_importado_api: "N" }],
+          }),
+        }
+      );
+      const vendedoresPage = await vendedoresRes.json();
+      todosVendedores = todosVendedores.concat(vendedoresPage.cadastro || []);
+      totalPaginasVendedores = vendedoresPage.total_de_paginas;
+    } catch (err) {
+      console.log(`Erro ao buscar página ${paginaVendedores} de vendedores:`, err);
     }
-  );
+    paginaVendedores++;
+  } while (paginaVendedores <= totalPaginasVendedores);
 
   const contaCorrente = await fetch(
     "https://app.omie.com.br/api/v1/geral/contacorrente/",
@@ -79,10 +84,9 @@ export default async function handler(
   );
 
   const pedidosJson = await pedidos.json();
-  const vendedoresJson = await vendedores.json();
   const contaCorrenteJson = await contaCorrente.json();
   for (let i = 0; i < pedidosJson.cupons.length; i++) {
-    const vendedor = vendedoresJson.cadastro.find((vendedor: any) => {
+    const vendedor = todosVendedores.find((vendedor: any) => {
       return vendedor.codigo == pedidosJson.cupons[i].cabecalhoCupom.idVendedor;
     });
 
