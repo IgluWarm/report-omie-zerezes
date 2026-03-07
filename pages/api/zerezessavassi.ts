@@ -11,81 +11,75 @@ export default async function handler(
 ) {
   const splitted = req.query.date.split("-");
 
-  const pedidos = await fetch(
-    "https://app.omie.com.br/api/v1/produtos/cupomfiscalconsultar/",
-    {
+  // Busca pedidos, primeira página de vendedores e contas correntes em paralelo
+  const [pedidos, vendedoresRes1, contaCorrente] = await Promise.all([
+    fetch("https://app.omie.com.br/api/v1/produtos/cupomfiscalconsultar/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         call: "CuponsFiscais",
         app_key: "3525888807441",
         app_secret: "94f4a65e3d89bdacb54b932c85601647",
-        param: [
-          {
-            nPagina: 1,
-            dDtEmissaoDe: `${splitted[0]}/${splitted[1]}/${splitted[2]}`,
-            dDtEmissaoAte: `${splitted[0]}/${splitted[1]}/${splitted[2]}`,
-            nRegPorPagina: 250,
-          },
-        ],
+        param: [{
+          nPagina: 1,
+          dDtEmissaoDe: `${splitted[0]}/${splitted[1]}/${splitted[2]}`,
+          dDtEmissaoAte: `${splitted[0]}/${splitted[1]}/${splitted[2]}`,
+          nRegPorPagina: 250,
+        }],
       }),
-    }
-  );
+    }),
+    fetch("https://app.omie.com.br/api/v1/geral/vendedores/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        call: "ListarVendedores",
+        app_key: "3525888807441",
+        app_secret: "94f4a65e3d89bdacb54b932c85601647",
+        param: [{ pagina: 1, registros_por_pagina: 50, apenas_importado_api: "N" }],
+      }),
+    }),
+    fetch("https://app.omie.com.br/api/v1/geral/contacorrente/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        call: "ListarContasCorrentes",
+        app_key: "3525888807441",
+        app_secret: "94f4a65e3d89bdacb54b932c85601647",
+        param: [{ pagina: 1, registros_por_pagina: 250, apenas_importado_api: "N" }],
+      }),
+    }),
+  ]);
+  
 
-  let todosVendedores: any[] = [];
-  let paginaVendedores = 1;
-  let totalPaginasVendedores = 1;
-  do {
-    try {
-      const vendedoresRes = await fetch(
-        "https://app.omie.com.br/api/v1/geral/vendedores/",
-        {
+  const [pedidosJson, vendedoresPage1, contaCorrenteJson] = await Promise.all([
+    pedidos.json(),
+    vendedoresRes1.json(),
+    contaCorrente.json(),
+  ]);
+
+  // Busca páginas restantes de vendedores em paralelo
+  let todosVendedores: any[] = [...(vendedoresPage1.cadastro || [])];
+  if (vendedoresPage1.total_de_paginas > 1) {
+    const promises = [];
+    for (let p = 2; p <= vendedoresPage1.total_de_paginas; p++) {
+      promises.push(
+        fetch("https://app.omie.com.br/api/v1/geral/vendedores/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             call: "ListarVendedores",
             app_key: "3525888807441",
             app_secret: "94f4a65e3d89bdacb54b932c85601647",
-            param: [{ pagina: paginaVendedores, registros_por_pagina: 50, apenas_importado_api: "N" }],
+            param: [{ pagina: p, registros_por_pagina: 50, apenas_importado_api: "N" }],
           }),
-        }
+        }).then((r) => r.json())
       );
-      const vendedoresPage = await vendedoresRes.json();
-
-      todosVendedores = todosVendedores.concat(vendedoresPage.cadastro || []);
-      totalPaginasVendedores = vendedoresPage.total_de_paginas;
-    } catch (err) {
-      console.log(`Erro ao buscar página ${paginaVendedores} de vendedores:`, err);
     }
-    paginaVendedores++;
-  } while (paginaVendedores <= totalPaginasVendedores);
-
-  const contaCorrente = await fetch(
-    "https://app.omie.com.br/api/v1/geral/contacorrente/",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        call: "ListarContasCorrentes",
-        app_key: "3525888807441",
-        app_secret: "94f4a65e3d89bdacb54b932c85601647",
-        param: [
-          {
-            pagina: 1,
-            registros_por_pagina: 250,
-            apenas_importado_api: "N",
-          },
-        ],
-      }),
+    const pages = await Promise.all(promises);
+    for (const page of pages) {
+      todosVendedores = todosVendedores.concat(page.cadastro || []);
     }
-  );
-
-  const pedidosJson = await pedidos.json();
-  const contaCorrenteJson = await contaCorrente.json();
+  }
   for (let i = 0; i < pedidosJson.cupons.length; i++) {
     const vendedor = todosVendedores.find((vendedor: any) => {
       return vendedor.codigo == pedidosJson.cupons[i].cabecalhoCupom.idVendedor;
